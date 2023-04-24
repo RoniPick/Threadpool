@@ -66,6 +66,7 @@ Task *dequeue(task_queue *queue) {
     return task;
 }
 
+
 thread_pool *create_thread_pool(thread_pool *pool){
     pool->num_threads = sysconf(_SC_NPROCESSORS_CONF); // get number of cores
     // thread_pool *pool = (thread_pool*)malloc(sizeof(thread_pool));
