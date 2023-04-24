@@ -7,17 +7,16 @@
 
 #define TASK_SIZE 1024
 
-typedef struct task {
-    int key;
+typedef struct Task{
+	int index;
     char data[TASK_SIZE];
-    int flag;
-    int task_num;
-    struct task *next;
-} task;
+    char* flag;
+    struct Task *next;
+} Task;
 
 typedef struct task_queue {
-    task *head;
-    task *tail;
+    Task *head;
+    Task *tail;
     int size;
 } task_queue;
 
@@ -32,6 +31,10 @@ typedef struct thread_pool {
     task_queue *queue;
 } thread_pool;
 
+struct args {
+    task_queue *queue;
+} args;
+
 
 task_queue *create_task_queue() {
     task_queue *queue = (task_queue*)malloc(sizeof(task_queue));
@@ -41,7 +44,7 @@ task_queue *create_task_queue() {
     return queue;
 }
 
-void enqueue(task_queue *queue, task *new_task) {
+void enqueue(task_queue *queue, Task *new_task) {
     if (queue->size == 0) {
         queue->head = new_task;
         queue->tail = new_task;
@@ -53,11 +56,11 @@ void enqueue(task_queue *queue, task *new_task) {
     queue->size++;
 }
 
-task *dequeue(task_queue *queue) {
+Task *dequeue(task_queue *queue) {
     if (queue->size == 0) {
         return NULL;
     }
-    task *task = queue->head;
+    Task *task = queue->head;
     queue->head = queue->head->next;
     queue->size--;
     return task;
@@ -65,11 +68,14 @@ task *dequeue(task_queue *queue) {
 
 thread_pool *create_thread_pool(thread_pool *pool){
     pool->num_threads = sysconf(_SC_NPROCESSORS_CONF); // get number of cores
-    thread_pool *pool = (thread_pool*)malloc(sizeof(thread_pool));
+    // thread_pool *pool = (thread_pool*)malloc(sizeof(thread_pool));
     pool->threads = (pthread_t*)malloc(sizeof(pthread_t) * pool->num_threads);
     pool->queue = create_task_queue();
     return pool;
 }
 
+void executeTask(task_queue* q,Task* task) ;
+void submitTask(Task task);
+void* startThread(void* args);
 
 
