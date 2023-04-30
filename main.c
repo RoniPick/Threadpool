@@ -31,11 +31,10 @@ int main(int argc, char* argv[]) {
 
     thread_pool *tp = create_thread_pool();
     int num=tp->num_threads;
-    struct args *args = (struct args*) malloc(sizeof(struct args));
-    args->queue = tp->queue;
+    struct args args = {.queue = tp->queue, .tp = tp, .status = 0};
 
     for(int i=0; i<num; i++){        
-        if(pthread_create(&tp->threads[i], NULL, startThread, (void*) args) != 0){
+        if(pthread_create(&tp->threads[i], NULL, &startThread, &args) != 0){
             printf("failing create thread");
             exit(0);
         }
@@ -49,19 +48,32 @@ int main(int argc, char* argv[]) {
 	  counter++;
 
 	  if (counter == 1024){
-        Task *t=malloc(sizeof(Task));
-        t->key=key;
-        memcpy(t->data, data, TASK_SIZE);
+        Task *t= create_task(t->data, flag, key); 
+        t->idx++;
         submitTask(t, tp);
 		counter = 0;
         memset(data, '\0', TASK_SIZE);
+        // printf("\n%d\n", tp->queue->size);
 	  }
 	}
+    if (counter != 0){
+        Task *t= create_task(t->data, flag, key);
+        t->idx++;
+        submitTask(t, tp);
+        printf("\n%d\n", tp->queue->size);
+		counter = 0;
+        memset(data, '\0', TASK_SIZE);
+	  }
+    while (tp->queue->size > 0){
+        usleep(500000);
+        continue;
+    }
+    args.status = 1; // done!
 
+    printf("\nMAIN\n");
     for(int i=0; i<num; i++){
         pthread_cond_signal(&tp->cond);
     }
-
     for(int i=0; i<num; i++){
         if(pthread_join(tp->threads[i], NULL)!=0){
             printf("failing joining thread");

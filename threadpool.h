@@ -11,10 +11,11 @@
 #include "codec.h"
 
 #define TASK_SIZE 1024
+int index = 0;
 
 typedef struct Task{
-	int index;
-    char* data;
+	int idx;
+    char data[TASK_SIZE];
     char* flag;
     int key;
     struct Task *next;
@@ -26,10 +27,10 @@ typedef struct task_queue {
     int size;
 } task_queue;
 
-typedef struct thread{
-    pthread_t thread;
-    int thread_status;
-} thread;
+// typedef struct thread{
+//     pthread_t thread;
+//     int thread_status;
+// } thread;
 
 typedef struct thread_pool {
     int num_threads;
@@ -42,10 +43,11 @@ typedef struct thread_pool {
 struct args {
     task_queue *queue;
     thread_pool *tp;
+    int status;
 } args;
 
 
-void executeTask(task_queue* q,Task* task) ;
+void executeTask(task_queue* q,Task* task, thread_pool *tp) ;
 void submitTask(Task *task, thread_pool *tp);
 void* startThread(void* args);
 void enqueue(task_queue *queue, Task *new_task);
