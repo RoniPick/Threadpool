@@ -1,16 +1,24 @@
+FLAGS = -g -Wall -L.
+LFLAGS = -Wl,-rpath='./' -lCodec -lpthread
+
+
 .PHONY: all
-all: task stdinExample threadpool.o
+all:  coder
 
-task:	codec.h basic_main.c
-	gcc basic_main.c -L. -l Codec -o encoder
+# task:	codec.h basic_main.c
+# 	gcc basic_main.c -L. -l Codec -o encoder
 
-stdinExample:	stdin_main.c
-		gcc stdin_main.c -L. -l Codec -o tester
+# stdinExample:	stdin_main.c
+# 		gcc stdin_main.c -L. -l Codec -o tester
 
 threadpool.o: threadpool.c threadpool.h
-		gcc -c threadpool.c
+		gcc $(FLAGS) -c threadpool.c -o threadpool.o $(LFLAGS)
 
+coder: main.c threadpool.o codec.h
+		gcc $(FLAGS) main.c threadpool.o -o encoder $(LFLAGS)
 
 .PHONY: clean
 clean:
-	-rm encoder tester 2>/dev/null
+	rm -f encoder tester *.o
+
+# LFLAGS = -Wl,-rpath='./' -lCodec -lpthread

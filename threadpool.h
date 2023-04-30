@@ -1,16 +1,22 @@
+#ifndef THREADPOOL_H
+#define THREADPOOL_H
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/sysinfo.h>
+#include "codec.h"
 
 #define TASK_SIZE 1024
 
 typedef struct Task{
 	int index;
-    char data[TASK_SIZE];
+    char* data;
     char* flag;
+    int key;
     struct Task *next;
 } Task;
 
@@ -29,54 +35,24 @@ typedef struct thread_pool {
     int num_threads;
     pthread_t *threads;
     task_queue *queue;
+    pthread_cond_t cond;
+    pthread_mutex_t mutex;
 } thread_pool;
 
 struct args {
     task_queue *queue;
+    thread_pool *tp;
 } args;
 
 
-task_queue *create_task_queue() {
-    task_queue *queue = (task_queue*)malloc(sizeof(task_queue));
-    queue->head = NULL;
-    queue->tail = NULL;
-    queue->size = 0;
-    return queue;
-}
-
-void enqueue(task_queue *queue, Task *new_task) {
-    if (queue->size == 0) {
-        queue->head = new_task;
-        queue->tail = new_task;
-    } 
-    else {
-        queue->tail->next = new_task;
-        queue->tail = new_task;
-    }
-    queue->size++;
-}
-
-Task *dequeue(task_queue *queue) {
-    if (queue->size == 0) {
-        return NULL;
-    }
-    Task *task = queue->head;
-    queue->head = queue->head->next;
-    queue->size--;
-    return task;
-}
-
-
-thread_pool *create_thread_pool(thread_pool *pool){
-    pool->num_threads = sysconf(_SC_NPROCESSORS_CONF); // get number of cores
-    // thread_pool *pool = (thread_pool*)malloc(sizeof(thread_pool));
-    pool->threads = (pthread_t*)malloc(sizeof(pthread_t) * pool->num_threads);
-    pool->queue = create_task_queue();
-    return pool;
-}
-
 void executeTask(task_queue* q,Task* task) ;
-void submitTask(Task task);
+void submitTask(Task *task, thread_pool *tp);
 void* startThread(void* args);
+void enqueue(task_queue *queue, Task *new_task);
+Task *dequeue(task_queue *queue);
+task_queue *create_task_queue();
+thread_pool *create_thread_pool();
+Task *create_task(char data[], char* flag, int key);
+void task_destroy(Task *task);
 
-
+#endif
