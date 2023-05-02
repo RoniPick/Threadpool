@@ -62,7 +62,6 @@ thread_pool *create_thread_pool(){
 
 Task *create_task(char* data, char* flag, int key){
 	Task *newTask=malloc(sizeof(Task));
-    // printf("here");
 	if(newTask == NULL){
 		return NULL;
 	}
@@ -77,6 +76,7 @@ Task *create_task(char* data, char* flag, int key){
 
 // function to execute a task by encrypting or decrypting the data
 void executeTask(task_queue* q,Task* task, thread_pool *tp) {
+    pthread_cond_signal(&tp->cond); //signal the waiting threads that a new task is available
     pthread_mutex_lock(&tp->mutex);
 	if (strcmp(task->flag, "-e") == 0){
 		encrypt(task->data, task->key);
@@ -94,7 +94,7 @@ void submitTask(Task *task, thread_pool *tp) {
     pthread_mutex_lock(&tp->mutex); //lock the mutex to prevent other threads from accessing the queue
     enqueue(tp->queue, task);
     pthread_mutex_unlock(&tp->mutex);
-    pthread_cond_signal(&tp->cond); //signal the waiting threads that a new task is available
+    // pthread_cond_signal(&tp->cond); //signal the waiting threads that a new task is available
 }
 
 

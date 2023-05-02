@@ -66,17 +66,15 @@ int main(int argc, char* argv[]) {
         memset(data, '\0', TASK_SIZE);
 	  }
 
-      
+
     while (tp->queue->size > 0){
-        pthread_mutex_lock(&tp->mutex);
-        executeTask(tp->queue, tp->queue->head, tp);
-        // pthread_mutex_unlock(&tp->mutex);
+        pthread_cond_signal(&tp->cond); //signal the waiting threads that a new task is available
+        // executeTask(tp->queue, tp->queue->head, tp);
         usleep(500000);
         continue;
     }
     args.status = 1; // done!
 
-    // printf("\nMAIN\n");
     for(int i=0; i<num; i++){
         pthread_cond_signal(&tp->cond);
     }
