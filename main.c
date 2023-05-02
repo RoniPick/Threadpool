@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
 
     char c;
 	int counter = 0;
+    int indx=0;
 
 	while ((c = getchar()) != EOF){
 	  data[counter] = c;
@@ -49,28 +50,33 @@ int main(int argc, char* argv[]) {
 
 	  if (counter == 1024){
         Task *t = create_task(data, flag, key); 
-        // t->idx++;
+        t->idx=indx++;
         submitTask(t, tp);
 		counter = 0;
         memset(data, '\0', TASK_SIZE);
-        // printf("\n%d\n", tp->queue->size);
+        printf("\n%d\n", tp->queue->size);
 	  }
 	}
-    if (counter != 0){
+    if (counter > 0){
         Task *t = create_task(data, flag, key);
-        // t->idx++;
+        t->idx=indx++;
         submitTask(t, tp);
         printf("\n%d\n", tp->queue->size);
 		counter = 0;
         memset(data, '\0', TASK_SIZE);
 	  }
+
+      
     while (tp->queue->size > 0){
+        pthread_mutex_lock(&tp->mutex);
+        executeTask(tp->queue, tp->queue->head, tp);
+        // pthread_mutex_unlock(&tp->mutex);
         usleep(500000);
         continue;
     }
     args.status = 1; // done!
 
-    printf("\nMAIN\n");
+    // printf("\nMAIN\n");
     for(int i=0; i<num; i++){
         pthread_cond_signal(&tp->cond);
     }

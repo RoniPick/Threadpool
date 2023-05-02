@@ -62,13 +62,13 @@ thread_pool *create_thread_pool(){
 
 Task *create_task(char* data, char* flag, int key){
 	Task *newTask=malloc(sizeof(Task));
+    // printf("here");
 	if(newTask == NULL){
 		return NULL;
 	}
 	memcpy(newTask->data, data, TASK_SIZE);
 	newTask->flag = flag;
 	newTask->key=key;
-    // newTask->idx=indx++;
 
 	return newTask;
 }
@@ -77,6 +77,7 @@ Task *create_task(char* data, char* flag, int key){
 
 // function to execute a task by encrypting or decrypting the data
 void executeTask(task_queue* q,Task* task, thread_pool *tp) {
+    pthread_mutex_lock(&tp->mutex);
 	if (strcmp(task->flag, "-e") == 0){
 		encrypt(task->data, task->key);
 	}
@@ -84,8 +85,7 @@ void executeTask(task_queue* q,Task* task, thread_pool *tp) {
 		decrypt(task->data, task->key);
 	}
     printf("%s", task->data);
-    pthread_mutex_lock(&tp->mutex);
-    free(dequeue(q)); //remove the task from the queue after executing it
+    dequeue(q); //remove the task from the queue after executing it
     pthread_mutex_unlock(&tp->mutex);
 }
 
