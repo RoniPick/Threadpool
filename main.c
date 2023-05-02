@@ -48,8 +48,8 @@ int main(int argc, char* argv[]) {
 	  counter++;
 
 	  if (counter == 1024){
-        Task *t= create_task(t->data, flag, key); 
-        t->idx++;
+        Task *t = create_task(data, flag, key); 
+        // t->idx++;
         submitTask(t, tp);
 		counter = 0;
         memset(data, '\0', TASK_SIZE);
@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
 	  }
 	}
     if (counter != 0){
-        Task *t= create_task(t->data, flag, key);
-        t->idx++;
+        Task *t = create_task(data, flag, key);
+        // t->idx++;
         submitTask(t, tp);
         printf("\n%d\n", tp->queue->size);
 		counter = 0;

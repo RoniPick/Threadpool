@@ -48,6 +48,10 @@ Task *dequeue(task_queue *queue) {
 
 thread_pool *create_thread_pool(){
 	thread_pool *pool= (thread_pool*)malloc(sizeof(thread_pool));
+    if(pool==NULL){
+        printf("error creating threadpool");
+        exit(0);
+    }
     pool->num_threads = sysconf(_SC_NPROCESSORS_CONF); // get number of cores
     pool->threads = (pthread_t*)malloc(sizeof(pthread_t) * pool->num_threads);
     pool->queue = create_task_queue();
@@ -64,6 +68,7 @@ Task *create_task(char* data, char* flag, int key){
 	memcpy(newTask->data, data, TASK_SIZE);
 	newTask->flag = flag;
 	newTask->key=key;
+    // newTask->idx=indx++;
 
 	return newTask;
 }

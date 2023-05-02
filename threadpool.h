@@ -11,7 +11,7 @@
 #include "codec.h"
 
 #define TASK_SIZE 1024
-int index = 0;
+
 
 typedef struct Task{
 	int idx;
