@@ -18,6 +18,8 @@ typedef struct Task{
     char data[TASK_SIZE];
     char* flag;
     int key;
+    int status;
+    int size;
     struct Task *next;
 } Task;
 
@@ -27,11 +29,6 @@ typedef struct task_queue {
     int size;
 } task_queue;
 
-// typedef struct thread{
-//     pthread_t thread;
-//     int thread_status;
-// } thread;
-
 typedef struct thread_pool {
     int num_threads;
     pthread_t *threads;
@@ -40,21 +37,21 @@ typedef struct thread_pool {
     pthread_mutex_t mutex;
 } thread_pool;
 
-struct args {
+typedef struct args {
     task_queue *queue;
     thread_pool *tp;
     int status;
 } args;
 
 
-void executeTask(task_queue* q,Task* task, thread_pool *tp) ;
+void executeTask(Task *task);
 void submitTask(Task *task, thread_pool *tp);
 void* startThread(void* args);
+Task *create_task(char *data, char *flag, int key, int size);
 void enqueue(task_queue *queue, Task *new_task);
 Task *dequeue(task_queue *queue);
 task_queue *create_task_queue();
 thread_pool *create_thread_pool();
-Task *create_task(char data[], char* flag, int key);
 void task_destroy(Task *task);
 
 #endif

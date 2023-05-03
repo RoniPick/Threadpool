@@ -60,65 +60,63 @@ thread_pool *create_thread_pool(){
     return pool;
 }
 
-Task *create_task(char* data, char* flag, int key){
-	Task *newTask=malloc(sizeof(Task));
-	if(newTask == NULL){
-		return NULL;
-	}
-	memcpy(newTask->data, data, TASK_SIZE);
-	newTask->flag = flag;
-	newTask->key=key;
 
-	return newTask;
+Task *create_task(char *data, char *flag, int key, int size){
+    Task *newTask = malloc(sizeof(Task));
+    if (newTask == NULL){
+        return NULL;
+    }
+    memcpy(newTask->data, data, TASK_SIZE);
+    newTask->flag = flag;
+    newTask->key = key;
+    newTask->size = size;
+
+    return newTask;
 }
-
 
 
 // function to execute a task by encrypting or decrypting the data
-void executeTask(task_queue* q,Task* task, thread_pool *tp) {
-    pthread_cond_signal(&tp->cond); //signal the waiting threads that a new task is available
-    pthread_mutex_lock(&tp->mutex);
-	if (strcmp(task->flag, "-e") == 0){
-		encrypt(task->data, task->key);
-	}
-	else if (strcmp(task->flag, "-d") == 0){
-		decrypt(task->data, task->key);
-	}
-    printf("%s", task->data);
-    dequeue(q); //remove the task from the queue after executing it
-    pthread_mutex_unlock(&tp->mutex);
+void executeTask(Task *task){
+    if (strcmp(task->flag, "-e") == 0){
+        encrypt(task->data, task->key);
+    }
+    else if (strcmp(task->flag, "-d") == 0){
+        decrypt(task->data, task->key);
+    }
+    write(1, task->data, task->size);
 }
 
+
 // function to add a new task to the task queue
-void submitTask(Task *task, thread_pool *tp) {
-    pthread_mutex_lock(&tp->mutex); //lock the mutex to prevent other threads from accessing the queue
+void submitTask(Task *task, thread_pool *tp){
+    pthread_mutex_lock(&tp->mutex); // lock the mutex to prevent other threads from accessing the queue
     enqueue(tp->queue, task);
+    pthread_cond_signal(&tp->cond); // signal the waiting threads that a new task is available
     pthread_mutex_unlock(&tp->mutex);
-    // pthread_cond_signal(&tp->cond); //signal the waiting threads that a new task is available
 }
 
 
 // function to be executed by each thread in the thread pool
-void* startThread(void* args) {
-    struct args *a = (struct args*) args;
-    while (1){
-		Task *task;
+void *startThread(void *args){
+    struct args *a = (struct args *)args;
+    Task *task;
 
-		pthread_mutex_lock(&a->tp->mutex);
-		while (a->tp->queue->size == 0){ //if there are no tasks-wait for a signal
-			pthread_cond_wait(&a->tp->cond, &a->tp->mutex);
-            if (a->status == 1)
-            {
+    while (1){
+        pthread_mutex_lock(&a->tp->mutex);
+        while (a->tp->queue->size == 0){ // if there are no tasks-wait for a signal
+            if (a->status == 1){
                 pthread_mutex_unlock(&a->tp->mutex);
                 printf("\nthread %ld exit\n", pthread_self());
                 return NULL;
             }
+            pthread_cond_wait(&a->tp->cond, &a->tp->mutex);
         }
 
-		task = a->tp->queue->head;
-		pthread_mutex_unlock(&a->tp->mutex);
-		executeTask(a->tp->queue, task, a->tp);
+        task = dequeue(a->tp->queue); // remove the task from the queue after executing it
+        pthread_mutex_unlock(&a->tp->mutex);
+        executeTask(task);
+        task_destroy(task); // destroy the task
         printf("\nthread %ld done task\n", pthread_self());
-	}
-	return NULL;
+    }
+    return NULL;
 }
