@@ -46,6 +46,10 @@ int main(int argc, char *argv[]){
     int b = 0;
     int index = 0;
     
+    //for printing
+    Task *tasks[TASK_SIZE];
+    int tasks_count = 0;
+    
     // reading the data from the file
     while ((b = read(0, data, TASK_SIZE))){
         Task *task = create_task(data, flag, key , b);
@@ -63,6 +67,12 @@ int main(int argc, char *argv[]){
             printf("failing joining thread");
             exit(0);
         }
+    }
+    
+     //print the tasks in the order they were enqueued
+    for (int i = 0; i < tasks_count; i++) {
+        write(1, tasks[i]->data, tasks[i]->size);
+        
     }
 
     free(tp);
