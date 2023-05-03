@@ -95,7 +95,7 @@ void executeTask(Task *task){
     else if (strcmp(task->flag, "-d") == 0){
         decrypt(task->data, task->key);
     }
-    write(1, task->data, task->size);
+    //write(1, task->data, task->size);
 }
 
 /* This function takes a task and a thread pool as input and adds the task to the task queue. It first locks the mutex to prevent other threads from accessing the queue, 
