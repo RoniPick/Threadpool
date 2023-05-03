@@ -15,4 +15,6 @@ where * is a Natural number, each number represent different encoder function fr
 If you wish to write the output to a new file, type `./coder * -e < # > #`
 
 ### Example
+<img width="1191" alt="צילום מסך 2023-05-03 ב-10 52 55" src="https://user-images.githubusercontent.com/92802335/235860109-2b2aae4d-c570-4718-be12-a7e529d5f2a4.png">
+
 
