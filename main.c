@@ -55,6 +55,7 @@ int main(int argc, char *argv[]){
         Task *task = create_task(data, flag, key , b);
         task->idx = index++;
         submitTask(task, tp);
+        tasks[tasks_count++] = task;
         memset(data, 0, TASK_SIZE);
     }
 
