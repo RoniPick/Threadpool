@@ -11,6 +11,7 @@
 
 int main(int argc, char *argv[]){
 
+    // input validation
     if (argc != 3){
         printf("invalid input");
         exit(0);
@@ -24,15 +25,17 @@ int main(int argc, char *argv[]){
     key = atoi(argv[1]);
     flag = argv[2];
 
+    // input validation
     if (strcmp(flag, "-e") && strcmp(flag, "-d")){
         printf("invalid input");
         exit(0);
     }
 
     thread_pool *tp = create_thread_pool();
-    int threads_num = tp->num_threads;
+    int threads_num = tp->num_threads; // the number of the computer's core
     struct args args = {.queue = tp->queue, .tp = tp, .status = 0};
 
+    // creating threads 
     for (int i = 0; i < threads_num; i++){
         if (pthread_create(&tp->threads[i], NULL, &startThread, &args) != 0){
             printf("failing create thread");
@@ -42,6 +45,8 @@ int main(int argc, char *argv[]){
 
     int b = 0;
     int index = 0;
+    
+    // reading the data from the file
     while ((b = read(0, data, TASK_SIZE))){
         Task *task = create_task(data, flag, key , b);
         task->idx = index++;

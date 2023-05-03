@@ -10,12 +10,17 @@
 
 task_queue *create_task_queue() {
     task_queue *queue = (task_queue*)malloc(sizeof(task_queue));
+    if(queue==NULL){
+        printf("error creating task_queue");
+        exit(0);
+    }
     queue->head = NULL;
     queue->tail = NULL;
     queue->size = 0;
     return queue;
 }
 
+// function that destroy the task after done
 void task_destroy(Task *task){
 	if(task==NULL){
 		return;
@@ -47,7 +52,7 @@ Task *dequeue(task_queue *queue) {
 
 
 thread_pool *create_thread_pool(){
-	thread_pool *pool= (thread_pool*)malloc(sizeof(thread_pool));
+	thread_pool *pool = (thread_pool*)malloc(sizeof(thread_pool));
     if(pool==NULL){
         printf("error creating threadpool");
         exit(0);
@@ -64,6 +69,7 @@ thread_pool *create_thread_pool(){
 Task *create_task(char *data, char *flag, int key, int size){
     Task *newTask = malloc(sizeof(Task));
     if (newTask == NULL){
+        printf("error creating task");
         return NULL;
     }
     memcpy(newTask->data, data, TASK_SIZE);
@@ -106,7 +112,7 @@ void *startThread(void *args){
         while (a->tp->queue->size == 0){ // if there are no tasks-wait for a signal
             if (a->status == 1){
                 pthread_mutex_unlock(&a->tp->mutex);
-                printf("\nthread %ld exit\n", pthread_self());
+                // printf("\nthread %ld exit\n", pthread_self());
                 return NULL;
             }
             pthread_cond_wait(&a->tp->cond, &a->tp->mutex);
@@ -116,7 +122,7 @@ void *startThread(void *args){
         pthread_mutex_unlock(&a->tp->mutex);
         executeTask(task);
         task_destroy(task); // destroy the task
-        printf("\nthread %ld done task\n", pthread_self());
+        // printf("\nthread %ld done task\n", pthread_self());
     }
     return NULL;
 }
