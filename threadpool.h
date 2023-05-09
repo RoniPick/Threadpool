@@ -45,6 +45,7 @@ typedef struct args {
 
 
 void executeTask(Task *task);
+void printdata();
 void submitTask(Task *task, thread_pool *tp);
 void* startThread(void* args);
 Task *create_task(char *data, char *flag, int key, int size);

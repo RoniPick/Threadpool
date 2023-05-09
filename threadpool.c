@@ -8,6 +8,8 @@
 
 #define TASK_SIZE 1024
 
+char arr[256][TASK_SIZE];
+
 /* This function creates a new task queue and returns a pointer to it. */
 task_queue *create_task_queue() {
     task_queue *queue = (task_queue*)malloc(sizeof(task_queue));
@@ -91,10 +93,13 @@ on the value of the flag field. */
 void executeTask(Task *task){
     if (strcmp(task->flag, "-e") == 0){
         encrypt(task->data, task->key);
+        memcpy(arr[task->idx], task->data, strlen(task->data));
     }
     else if (strcmp(task->flag, "-d") == 0){
         decrypt(task->data, task->key);
+        memcpy(arr[task->idx], task->data, strlen(task->data));
     }
+
     //write(1, task->data, task->size);
 }
 
@@ -107,6 +112,12 @@ void submitTask(Task *task, thread_pool *tp){
     pthread_mutex_unlock(&tp->mutex);
 }
 
+//function to print the data
+void printdata(){
+    for(int i=0; i<1; i++){
+        write(1, arr[i], strlen(arr[i]));
+    }
+}
 /* This function is the main function executed by each worker thread in the thread pool. 
 It takes a structure args as input, which contains a pointer to the thread pool and a status variable that indicates whether the thread should exit. 
 It retrieves tasks from the task queue and executes them until the status variable is set to 1, indicating that the thread should exit. */

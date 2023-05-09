@@ -46,16 +46,11 @@ int main(int argc, char *argv[]){
     int b = 0;
     int index = 0;
     
-    //for printing
-    Task *tasks[TASK_SIZE];
-    int tasks_count = 0;
-    
     // reading the data from the file
     while ((b = read(0, data, TASK_SIZE))){
         Task *task = create_task(data, flag, key , b);
         task->idx = index++;
         submitTask(task, tp);
-        tasks[tasks_count++] = task;
         memset(data, 0, TASK_SIZE);
     }
 
@@ -70,12 +65,10 @@ int main(int argc, char *argv[]){
         }
     }
     
-     //print the tasks in the order they were enqueued
-    for (int i = 0; i < tasks_count; i++) {
-        write(1, tasks[i]->data, tasks[i]->size);
-        
-    }
-
     free(tp);
+
+    //function to print the data
+    printdata();
+    
     return 0;
 }
